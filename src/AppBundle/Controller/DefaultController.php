@@ -17,14 +17,29 @@ use Symfony\Component\HttpFoundation\Response;
 class DefaultController extends Controller
 {
     /**
-     * @Route("/", name="homepage")
+     * @Route("/feedback", name="feedback")
      */
-    public function indexAction(Request $request)
+    public function feedbackAction(Request $request)
     {
-        // replace this example code with whatever you need
-        return $this->render('default/index.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..'),
-        ]);
+        $email = $request->query->get('email', null);
+        $jobId = $request->query->get('jobId', null);
+        if (empty($email) || empty($jobId))
+        {
+            return new Response('jobId and email must not be empty.', 400);
+        }
+
+        $document_manager = $this->get('document_manager');
+
+
+        $user = $document_manager->getRepository('AppBundle\Model\User')
+            ->findOneBy(['email' => $email]);
+        if (empty($user))
+        {
+            return new Response('User does not exist', 404);
+        }
+
+        $matcher = $this->get('matcher_service');
+        $matcher->learn(array_values($user->getPersonalTrails()), $jobId);
     }
 
     /**
@@ -38,10 +53,11 @@ class DefaultController extends Controller
         // todo:
         $url = $request->query->get('url', null);
         $email = $request->query->get('email', null);
-
+        $personalTrails = $request->query->get('trails', []);
+        ksort($personalTrails);
         if (empty($url) || empty($email))
         {
-            return new Response(400, 'url and email must not be empty.');
+            return new Response('url and email must not be empty.', 400);
         }
 
         $scrapeData = (new Scraper())->getData($url);
@@ -62,7 +78,8 @@ class DefaultController extends Controller
                 ->setLanguages($scrapeData['languages'])
                 ->setSkills($scrapeData['skills'])
                 ->setJobs($jobs)
-                ->setEmail($email);
+                ->setEmail($email)
+                ->setPersonalTrails($personalTrails);
         }
 
         $document_manager->persist($user);

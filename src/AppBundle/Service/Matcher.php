@@ -23,9 +23,16 @@ class Matcher
         $this->client = new Client();
     }
 
-    public function learn ()
+    public function learn (array $trails, $jobId)
     {
-        
+        $this->client->get(
+            $this->url . 'feed?' . \GuzzleHttp\Psr7\build_query(
+                [
+                    'data' => implode(',', $trails),
+                    'target' => $jobId,
+                ]
+            )
+        );
     }
     
     public function predict(User $user)

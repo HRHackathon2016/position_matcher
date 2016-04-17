@@ -26,6 +26,11 @@ class User
     private $skills;
 
     /**
+     * @ODM\Field(type="hash)
+     */
+    private $personalTrails;
+
+    /**
      * @return mixed
      */
     public function getName()
@@ -107,10 +112,29 @@ class User
 
     /**
      * @param string[] $skills
+     * 
      */
     public function setSkills($skills)
     {
         $this->skills = $skills;
         return $this;
+    }
+
+    /**
+     * @param mixed $personalTrails
+     * @return User
+     */
+    public function setPersonalTrails($personalTrails)
+    {
+        $this->personalTrails = $personalTrails;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPersonalTrails()
+    {
+        return $this->personalTrails;
     }
 }
