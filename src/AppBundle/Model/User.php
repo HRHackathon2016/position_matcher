@@ -11,10 +11,7 @@ class User
     private $id;
 
     /** @ODM\Field(type="string") */
-    private $last_name;
-
-    /** @ODM\Field(type="string") */
-    private $first_name;
+    private $name;
 
     /** @ODM\Field(type="string") */
     private $email;
@@ -31,36 +28,18 @@ class User
     /**
      * @return mixed
      */
-    public function getLastName()
+    public function getName()
     {
-        return $this->last_name;
+        return $this->name;
     }
 
     /**
-     * @param mixed $last_name
+     * @param $name
      * @return User
      */
-    public function setLastName($last_name)
+    public function setName($name)
     {
-        $this->last_name = $last_name;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getFirstName()
-    {
-        return $this->first_name;
-    }
-
-    /**
-     * @param mixed $first_name
-     * @return User
-     */
-    public function setFirstName($first_name)
-    {
-        $this->first_name = $first_name;
+        $this->name = $name;
         return $this;
     }
 
@@ -132,5 +111,6 @@ class User
     public function setSkills($skills)
     {
         $this->skills = $skills;
+        return $this;
     }
 }

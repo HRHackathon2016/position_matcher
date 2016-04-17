@@ -22,7 +22,10 @@
         "sensio/framework-extra-bundle": "^3.0.2",
         "incenteev/composer-parameter-handler": "^2.0",
         "doctrine/mongodb-odm": "^1.0",
-        "doctrine/mongodb-odm-bundle": "^3.1"
+        "doctrine/mongodb-odm-bundle": "^3.1",
+        "symfony/dom-crawler": "^3.0",
+        "symfony/css-selector": "^3.0",
+        "guzzlehttp/guzzle" : "^6.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",

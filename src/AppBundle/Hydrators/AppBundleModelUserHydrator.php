@@ -36,19 +36,11 @@ class AppBundleModelUserHydrator implements HydratorInterface
         }
 
         /** @Field(type="string") */
-        if (isset($data['last_name'])) {
-            $value = $data['last_name'];
+        if (isset($data['name'])) {
+            $value = $data['name'];
             $return = (string) $value;
-            $this->class->reflFields['last_name']->setValue($document, $return);
-            $hydratedData['last_name'] = $return;
-        }
-
-        /** @Field(type="string") */
-        if (isset($data['first_name'])) {
-            $value = $data['first_name'];
-            $return = (string) $value;
-            $this->class->reflFields['first_name']->setValue($document, $return);
-            $hydratedData['first_name'] = $return;
+            $this->class->reflFields['name']->setValue($document, $return);
+            $hydratedData['name'] = $return;
         }
 
         /** @Field(type="string") */

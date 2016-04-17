@@ -5,6 +5,7 @@ namespace AppBundle\Controller;
 use AppBundle\Model\User;
 use AppBundle\Model\User\Job;
 
+use AppBundle\Scraper\Scraper;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -33,16 +34,31 @@ class DefaultController extends Controller
     public function fetchUserAction(Request $request)
     {
         $document_manager = $this->get('document_manager');
-        // todo: fetch from LI: $public_user_data = feth_from_linkedin
+        // todo:
+        $url = $request->query->get('url');
+        $scrapeData = (new Scraper())->getData($url);
+
+
+        $jobs = array_map(function(\AppBundle\Scraper\Job $job){
+            return (new Job())->setCompany($job->getCompanyName())
+                ->setTitle($job->getJobTitle())
+                ->setDuration($job->getDuration());
+        }, $scrapeData['jobs']);
+
         $user = (new User())
-            ->setFirstName('first')
-            ->setLastName('last')
-            //->setLanguages(/*lang*/)
-            //->setSkills(/*skillset*/)
-            ->setEmail('user@example.com');
+            ->setName($scrapeData['name'])
+            ->setLanguages($scrapeData['languages'])
+            ->setSkills($scrapeData['skills'])
+            ->setJobs($jobs);
+
+        if ($email = $request->query->get('email', null)){
+            $user->setEmail($email);
+        }
         $document_manager->persist($user);
         $document_manager->flush();
 
-        return new Response();
+        $user = $document_manager->getRepository('AppBundle\Model\User')->findOneBy(array('email' => $email));
+
+        return new JsonResponse(array('user' => $user->getName()));
     }
 }
