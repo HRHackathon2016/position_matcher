@@ -9,13 +9,12 @@ use GuzzleHttp\Client;
 
 class Matcher
 {
-
     /** @var  string */
     private $url;
     /** @var  DocumentManager */
     private $documentManager;
     /** @var  Client */
-    private $lcient;
+    private $client;
 
     public function __construct($url, DocumentManager $documentManager)
     {
@@ -24,9 +23,16 @@ class Matcher
         $this->client = new Client();
     }
 
-    public function learn ()
+    public function learn (array $trails, $jobId)
     {
-        
+        $this->client->get(
+            $this->url . 'feed?' . \GuzzleHttp\Psr7\build_query(
+                [
+                    'data' => implode(',', $trails),
+                    'target' => $jobId,
+                ]
+            )
+        );
     }
     
     public function predict(User $user)
