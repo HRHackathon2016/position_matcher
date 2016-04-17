@@ -6,6 +6,7 @@ use AppBundle\Model\User;
 use AppBundle\Model\User\Job;
 
 use AppBundle\Scraper\Scraper;
+use AppBundle\Service\Matcher;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -35,9 +36,15 @@ class DefaultController extends Controller
     {
         $document_manager = $this->get('document_manager');
         // todo:
-        $url = $request->query->get('url');
-        $scrapeData = (new Scraper())->getData($url);
+        $url = $request->query->get('url', null);
+        $email = $request->query->get('email', null);
 
+        if (empty($url) || empty($email))
+        {
+            return new Response(400, 'url and email must not be empty.');
+        }
+
+        $scrapeData = (new Scraper())->getData($url);
 
         $jobs = array_map(function(\AppBundle\Scraper\Job $job){
             return (new Job())->setCompany($job->getCompanyName())
@@ -45,25 +52,27 @@ class DefaultController extends Controller
                 ->setDuration($job->getDuration());
         }, $scrapeData['jobs']);
 
-        $user = (new User())
-            ->setName($scrapeData['name'])
-            ->setLanguages($scrapeData['languages'])
-            ->setSkills($scrapeData['skills'])
-            ->setJobs($jobs);
+        $usersRepo = $document_manager->getRepository('AppBundle\Model\User');
 
-        if ($email = $request->query->get('email', null)){
-            $user->setEmail($email);
+        $user = $usersRepo->findOneBy(['email' => $email]);
+        if (empty($user))
+        {
+            $user = (new User())
+                ->setName($scrapeData['name'])
+                ->setLanguages($scrapeData['languages'])
+                ->setSkills($scrapeData['skills'])
+                ->setJobs($jobs)
+                ->setEmail($email);
         }
+
         $document_manager->persist($user);
         $document_manager->flush();
 
-        $user = $document_manager->getRepository('AppBundle\Model\User')->findOneBy(array('email' => $email));
+        //$user = $document_manager->getRepository('AppBundle\Model\User')->findOneBy(['email' => $email]);
 
-        $matcher = $this->get('matcher');
-        
+        $matcher = $this->get('matcher_service');
+
         $jobSuggestions = $matcher->predict($user);
-        
-        
         return new JsonResponse(['suggestions' => $jobSuggestions]);
     }
 }

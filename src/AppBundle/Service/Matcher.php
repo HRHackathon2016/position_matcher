@@ -9,13 +9,12 @@ use GuzzleHttp\Client;
 
 class Matcher
 {
-
     /** @var  string */
     private $url;
     /** @var  DocumentManager */
     private $documentManager;
     /** @var  Client */
-    private $lcient;
+    private $client;
 
     public function __construct($url, DocumentManager $documentManager)
     {

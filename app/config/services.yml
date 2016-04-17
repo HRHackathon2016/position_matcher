@@ -2,11 +2,19 @@
 # http://symfony.com/doc/current/book/service_container.html
 parameters:
 #    parameter_name: value
+  matcher_url: 'http://localhost:8081/'
 
 services:
   document_manager:
     class: 'Doctrine\ODM\MongoDB\DocumentManager'
     factory: ['AppBundle\Factory\DocumentManagementFactory', 'build']
+
+  matcher_service:
+    class: 'AppBundle\Service\Matcher'
+    arguments:
+      - '%matcher_url%'
+      - '@document_manager'
+
 #    service_name:
 #        class: AppBundle\Directory\ClassName
 #        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
