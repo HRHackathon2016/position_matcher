@@ -59,6 +59,11 @@ class DefaultController extends Controller
 
         $user = $document_manager->getRepository('AppBundle\Model\User')->findOneBy(array('email' => $email));
 
-        return new JsonResponse(array('user' => $user->getName()));
+        $matcher = $this->get('matcher');
+        
+        $jobSuggestions = $matcher->predict($user);
+        
+        
+        return new JsonResponse(['suggestions' => $jobSuggestions]);
     }
 }
